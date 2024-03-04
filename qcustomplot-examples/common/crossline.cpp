@@ -1,13 +1,14 @@
 ﻿#include "crossline.h"
 #include "cursorhelper.h"
 #include "../lib/qcustomplot.h"
+
 #include <QDebug>
 #include <QMouseEvent>
 
 const QString CrossLine::layer = "overlay";
 const QMargins CrossLine::margins = QMargins(6, 6, 6, 6);
 
-CrossLine::CrossLine(QCustomPlot *parentPlot, QCPGraph *targetGraph)
+CrossLine::CrossLine(CustomPlot *parentPlot, QCPGraph *targetGraph)
     : QObject(parentPlot)
     , mParentPlot(parentPlot)
     , mTargetGraph(targetGraph ? targetGraph : mParentPlot->graph())
@@ -38,7 +39,7 @@ void CrossLine::addHLine_(double value)
 
     mValues.append(value);
 
-    CursorHelper *helper = CursorHelper::instance();
+    CursorHelper* helper = &mParentPlot->cursorHelper;
     if (mTargetGraph->keyAxis()->orientation() == Qt::Horizontal) {
         text->position->setParentAnchor(line->start);
     } else {
@@ -61,7 +62,7 @@ void CrossLine::addHLine_(double value)
 
 void CrossLine::clearHLines_()
 {
-    CursorHelper *helper = CursorHelper::instance();
+    CursorHelper* helper = &mParentPlot->cursorHelper;
     foreach (QCPItemLine *line, mHLines)
     {
         helper->remove(line);
@@ -93,7 +94,7 @@ void CrossLine::addVLine_(double key)
 
     mKeys.append(key);
 
-    CursorHelper *helper = CursorHelper::instance();
+    CursorHelper* helper = &mParentPlot->cursorHelper;
     if (mTargetGraph->keyAxis()->orientation() == Qt::Horizontal) {
         text->position->setParentAnchor(line->end);
     } else {
@@ -113,7 +114,7 @@ void CrossLine::addVLine_(double key)
 
 void CrossLine::clearVLines_()
 {
-    CursorHelper *helper = CursorHelper::instance();
+    CursorHelper* helper = &mParentPlot->cursorHelper;
     foreach (QCPItemLine *line, mVLines)
     {
         helper->remove(line);
@@ -381,7 +382,7 @@ void CrossLine::clearTracers()
 void CrossLine::setLineMode(CrossLine::LineMode mode)
 {
     mLineMode = mode;
-    CursorHelper *helper = CursorHelper::instance();
+    CursorHelper* helper = &mParentPlot->cursorHelper;
 
     clearTracers_();
     clearVLines_();

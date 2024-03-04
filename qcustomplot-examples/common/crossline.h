@@ -1,6 +1,8 @@
 ﻿#ifndef CROSSLINE_H
 #define CROSSLINE_H
 
+#include "customplot.h"
+
 #include <QObject>
 #include <QMargins>
 
@@ -25,7 +27,7 @@ public:
     };
     Q_ENUM(LineMode)
 
-    explicit CrossLine(QCustomPlot *parentPlot, QCPGraph *targetGraph = Q_NULLPTR);
+    explicit CrossLine(CustomPlot *parentPlot, QCPGraph *targetGraph = Q_NULLPTR);
     ~CrossLine();
 
     void addHLine(double value = 0.0);
@@ -72,7 +74,7 @@ public Q_SLOTS:
     void update();
 
 protected:
-    QCustomPlot *mParentPlot;
+    CustomPlot *mParentPlot;
     QCPGraph *mTargetGraph;
 
     // mHLines, mHTexts 和 mValues 长度始终一致

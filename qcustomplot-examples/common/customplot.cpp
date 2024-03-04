@@ -1,5 +1,4 @@
 ﻿#include "customplot.h"
-#include "cursorhelper.h"
 
 CustomPlot::CustomPlot(QWidget *parent)
     : QCustomPlot(parent)
@@ -9,9 +8,7 @@ CustomPlot::CustomPlot(QWidget *parent)
 
 CustomPlot::~CustomPlot()
 {
-    CursorHelper::release();
 }
-
 
 void CustomPlot::mousePressEvent(QMouseEvent *event)
 {
@@ -44,7 +41,7 @@ void CustomPlot::mouseMoveEvent(QMouseEvent *event)
     // set item cursor
     if (item || selectedItem) {
         QCPAbstractItem *obj = selectedItem ? selectedItem : item;
-        QCursor itemCursor = CursorHelper::instance()->cursor(obj);
+        QCursor itemCursor = cursorHelper.cursor(obj);
         if (itemCursor.shape() != cursor().shape())
             setCursor(itemCursor);
     } else {
@@ -57,7 +54,6 @@ void CustomPlot::mouseMoveEvent(QMouseEvent *event)
         selectedItem->layer()->replot();
     }
 }
-
 
 QSize CustomPlot::sizeHint() const
 {

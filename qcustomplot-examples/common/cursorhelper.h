@@ -9,23 +9,20 @@ class CursorHelper : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(CursorHelper)
+
 public:
-    static CursorHelper *instance();
-    static void release();
+    CursorHelper();
+    ~CursorHelper();
 
     void setCursor(QObject *item, const QCursor &cursor);
     QCursor cursor(QObject *item);
-
 
 public Q_SLOTS:
     void remove(QObject *item);
 
 private:
-    CursorHelper();
-    ~CursorHelper();
-private:
-    static CursorHelper *mInstance;
     QHash<QObject*, QCursor> mCursors;
+
 };
 
 #endif // CURSORHELPER_H

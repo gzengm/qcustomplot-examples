@@ -2,26 +2,30 @@
 #define CUSTOMPLOT_H
 
 #include "../lib/qcustomplot.h"
+#include "cursorhelper.h"
 
 class CustomPlot : public QCustomPlot
 {
     Q_OBJECT
 public:
     CustomPlot(QWidget *parent = Q_NULLPTR);
-    virtual ~CustomPlot() Q_DECL_OVERRIDE;
+    ~CustomPlot() Q_DECL_OVERRIDE;
 
 Q_SIGNALS:
     void itemMoved(QCPAbstractItem *item, QMouseEvent *event);
 
     // QWidget interface
 protected:
-    virtual void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
-    virtual void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
-    virtual void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+    void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+    void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
 
     // QWidget interface
 public:
-    virtual QSize sizeHint() const Q_DECL_OVERRIDE;
+    QSize sizeHint() const Q_DECL_OVERRIDE;
+
+public:
+    CursorHelper cursorHelper;
 
 };
 
