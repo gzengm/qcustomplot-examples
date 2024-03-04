@@ -2,6 +2,7 @@
 #define CROSSLINE_H
 
 #include <QObject>
+#include <QMargins>
 
 class QCustomPlot;
 class QCPItemLine;
@@ -15,8 +16,8 @@ class QCPGraph;
 class CrossLine : public QObject
 {
     Q_OBJECT
-public:
 
+public:
     enum LineMode {
         lmFree,
         lmFollowCursor,
@@ -27,6 +28,14 @@ public:
     explicit CrossLine(QCustomPlot *parentPlot, QCPGraph *targetGraph = Q_NULLPTR);
     ~CrossLine();
 
+    void addHLine();
+    void addVLine();
+    void addTracer();
+
+    void clearHLines();
+    void clearVLines();
+    void clearTracers();
+
     void setLineMode(LineMode mode);
     LineMode lineMode() const { return mLineMode; }
 
@@ -35,6 +44,20 @@ public:
 
     void setGraph(QCPGraph *graph);
 
+protected:
+    void updateTracer();
+    void updateHLine();
+    void updateVLine();
+
+private:
+    void addHLine_();
+    void addVLine_();
+    void addTracer_();
+
+    void clearHLines_();
+    void clearVLines_();
+    void clearTracers_();
+
 public Q_SLOTS:
     void onMouseMoved(QMouseEvent *event);
     void onItemMoved(QCPAbstractItem *item, QMouseEvent *event);
@@ -42,20 +65,39 @@ public Q_SLOTS:
 
 protected:
     QCustomPlot *mParentPlot;
-    QCPItemLine *mHLine, *mVLine;
-    QCPItemText *mHText, *mVText;
-    QCPItemTracer *mTracer;
-    QCPItemText *mTracerText;
-    QCPItemCurve *mTracerArrow;
     QCPGraph *mTargetGraph;
 
-    LineMode mLineMode;
-    double mKey, mValue;
+    // mHLines, mHTexts 和 mValues 长度始终一致
+    // mVLines, mVTexts 和 mKeys 长度始终一致
+    // mTracers, mTracerTexts 和 mTracerArrows 长度始终一致
+    // 如果 mLineMode 为 lmTracing, 则 mHLines, mVLines 和 mTracers 的长度一致
+    // 如果 mLineMode 为 lmFollowCursor, 则 mHLines, mVLines 的长度为 1, mTracers 的长度为 0
+    // 如果 mLineMode 为 lmFree, 则 mTracers 的长度为 0
 
-protected:
-    void updateTracer();
-    void updateHLine(double value);
-    void updateVLine(double key);
+    // 水平线
+    QVector<QCPItemLine*> mHLines;
+    // 水平线上的文本
+    QVector<QCPItemText*> mHTexts;
+
+    // 垂直线
+    QVector<QCPItemLine*> mVLines;
+    // 垂直线上的文本
+    QVector<QCPItemText*> mVTexts;
+
+    // 跟踪点
+    QVector<QCPItemTracer*> mTracers;
+    // 跟踪点上的文本
+    QVector<QCPItemText*> mTracerTexts;
+    // 跟踪点上的箭头
+    QVector<QCPItemCurve*> mTracerArrows;
+
+    LineMode mLineMode;
+    QVector<double> mKeys;
+    QVector<double> mValues;
+
+    static const QString layer;
+    static const QMargins margins;
+
 };
 
 #endif // CROSSLINE_H

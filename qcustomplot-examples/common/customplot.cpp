@@ -61,5 +61,5 @@ void CustomPlot::mouseMoveEvent(QMouseEvent *event)
 
 QSize CustomPlot::sizeHint() const
 {
-    return QSize(400, 300);
+    return QSize(1200, 900);
 }
