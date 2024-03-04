@@ -107,8 +107,6 @@ MainWindow::MainWindow(QWidget* parent)
 	{
 		customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectItems);
 	});
-
-	showMaximized();
 }
 
 MainWindow::~MainWindow()

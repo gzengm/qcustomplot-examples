@@ -15,6 +15,10 @@ class QCPAbstractItem;
 class QMouseEvent;
 class QCPGraph;
 
+#define DEFAULT_KEY_TEXT_FORMAT "%1"
+#define DEFAULT_VALUE_TEXT_FORMAT "%1"
+#define DEFAULT_TRACER_TEXT_FORMAT "(%1, %2)"
+
 class CrossLine : public QObject
 {
 	Q_OBJECT
@@ -32,17 +36,17 @@ public:
 	explicit CrossLine(CustomPlot* parentPlot, QCPGraph* targetGraph = Q_NULLPTR);
 	~CrossLine();
 
-	void addHLine(double value = 0.0);
-	void addVLine(double key = 0.0);
-	void addTracer(double key = 0.0);
+	void addHLine(double value = 0.0, const QString& valueTextFormat = DEFAULT_VALUE_TEXT_FORMAT);
+	void addVLine(double key = 0.0, const QString& keyTextFormat = DEFAULT_KEY_TEXT_FORMAT);
+	void addTracer(double key, const QString& tracerTextFormat = DEFAULT_TRACER_TEXT_FORMAT, const QString& keyTextFormat = DEFAULT_KEY_TEXT_FORMAT, const QString& valueTextFormat = DEFAULT_VALUE_TEXT_FORMAT);
 
-	void addHLines(const QVector<double>& values);
-	void addVLines(const QVector<double>& keys);
-	void addTracers(const QVector<double>& keys);
+	void addHLines(const QVector<double>& values, const QStringList& valueTextFormats = QStringList());
+	void addVLines(const QVector<double>& keys, const QStringList& keyTextFormats = QStringList());
+	void addTracers(const QVector<double>& keys, const QStringList& tracerTextFormats = QStringList(), const QStringList& keyTextFormats = QStringList(), const QStringList& valueTextFormats = QStringList());
 
-	void setHLines(const QVector<double>& values);
-	void setVLines(const QVector<double>& keys);
-	void setTracers(const QVector<double>& keys);
+	void setHLines(const QVector<double>& values, const QStringList& valueTextFormats = QStringList());
+	void setVLines(const QVector<double>& keys, const QStringList& keyTextFormats = QStringList());
+	void setTracers(const QVector<double>& keys, const QStringList& tracerTextFormats = QStringList(), const QStringList& keyTextFormats = QStringList(), const QStringList& valueTextFormats = QStringList());
 
 	void clearHLines();
 	void clearVLines();
@@ -62,9 +66,13 @@ protected:
 	void updateVLine();
 
 private:
-	void addHLine_(double value = 0.0);
-	void addVLine_(double key = 0.0);
-	void addTracer_(double key = 0.0);
+	void addHLine_(double value = 0.0, const QString& valueTextFormat = DEFAULT_VALUE_TEXT_FORMAT);
+	void addVLine_(double key = 0.0, const QString& keyTextFormat = DEFAULT_KEY_TEXT_FORMAT);
+	void addTracer_(double key = 0.0, const QString& tracerTextFormat = DEFAULT_TRACER_TEXT_FORMAT);
+
+	void addHLines_(const QVector<double>& values, const QStringList& valueTextFormats = QStringList());
+	void addVLines_(const QVector<double>& keys, const QStringList& keyTextFormats = QStringList());
+	void addTracers_(const QVector<double>& keys, const QStringList& tracerTextFormats = QStringList(), const QStringList& keyTextFormats = QStringList(), const QStringList& valueTextFormats = QStringList());
 
 	void clearHLines_();
 	void clearVLines_();
@@ -106,9 +114,16 @@ protected:
 	LineMode mLineMode;
 	QVector<double> mKeys;
 	QVector<double> mValues;
+	QStringList mHTextFormats;
+	QStringList mVTextFormats;
+	QStringList mTracerTextFormats;
 
 	static const QString layer;
 	static const QMargins margins;
+	QPen mLinePen;
+	QPen mLineSelectedPen;
+	QColor mTextColor;
+	QColor mTextSelectedColor;
 };
 
 #endif // CROSSLINE_H

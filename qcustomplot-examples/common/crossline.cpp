@@ -1,6 +1,5 @@
 ﻿#include "crossline.h"
 #include "cursorhelper.h"
-#include "../lib/qcustomplot.h"
 
 #include <QDebug>
 #include <QMouseEvent>
@@ -13,6 +12,11 @@ CrossLine::CrossLine(CustomPlot* parentPlot, QCPGraph* targetGraph)
 	  , mParentPlot(parentPlot)
 	  , mTargetGraph(targetGraph ? targetGraph : mParentPlot->graph())
 {
+	mLinePen = QPen(Qt::black, 2);
+	mLineSelectedPen = QPen(Qt::red, 2);
+	mTextColor = Qt::black;
+	mTextSelectedColor = Qt::red;
+
 	setLineMode(lmFree);
 
 	connect(parentPlot, SIGNAL(afterReplot()), this, SLOT(update()));
@@ -24,20 +28,25 @@ CrossLine::~CrossLine()
 {
 }
 
-void CrossLine::addHLine_(double value)
+void CrossLine::addHLine_(double value, const QString& valueTextFormat)
 {
 	QCPItemLine* line = new QCPItemLine(mParentPlot);
+	line->setPen(mLinePen);
+	line->setSelectedPen(mLineSelectedPen);
 	line->start->setType(QCPItemPosition::ptAbsolute);
 	line->end->setType(QCPItemPosition::ptAbsolute);
 	line->setLayer(layer);
 	mHLines.append(line);
 
 	QCPItemText* text = new QCPItemText(mParentPlot);
+	text->setColor(mTextColor);
+	text->setSelectedPen(mTextSelectedColor);
 	text->setPadding(margins);
 	text->setLayer(layer);
 	mHTexts.append(text);
 
 	mValues.append(value);
+	mHTextFormats.append(valueTextFormat);
 
 	CursorHelper* helper = &mParentPlot->cursorHelper;
 	if (mTargetGraph->keyAxis()->orientation() == Qt::Horizontal)
@@ -67,6 +76,24 @@ void CrossLine::addHLine_(double value)
 	}
 }
 
+void CrossLine::addHLines_(const QVector<double>& values, const QStringList& valueTextFormats)
+{
+	if (valueTextFormats.isEmpty())
+	{
+		foreach(const double& value, values)
+		{
+			addHLine_(value);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < values.size(); ++i)
+		{
+			addHLine_(values[i], valueTextFormats.value(i, DEFAULT_VALUE_TEXT_FORMAT));
+		}
+	}
+}
+
 void CrossLine::clearHLines_()
 {
 	CursorHelper* helper = &mParentPlot->cursorHelper;
@@ -86,20 +113,25 @@ void CrossLine::clearHLines_()
 	mValues.resize(0);
 }
 
-void CrossLine::addVLine_(double key)
+void CrossLine::addVLine_(double key, const QString& keyTextFormat)
 {
 	QCPItemLine* line = new QCPItemLine(mParentPlot);
+	line->setPen(mLinePen);
+	line->setSelectedPen(mLineSelectedPen);
 	line->start->setType(QCPItemPosition::ptAbsolute);
 	line->end->setType(QCPItemPosition::ptAbsolute);
 	line->setLayer(layer);
 	mVLines.append(line);
 
 	QCPItemText* text = new QCPItemText(mParentPlot);
+	text->setColor(mTextColor);
+	text->setSelectedColor(mTextSelectedColor);
 	text->setPadding(margins);
 	text->setLayer(layer);
 	mVTexts.append(text);
 
 	mKeys.append(key);
+	mVTextFormats.append(keyTextFormat);
 
 	CursorHelper* helper = &mParentPlot->cursorHelper;
 	if (mTargetGraph->keyAxis()->orientation() == Qt::Horizontal)
@@ -126,6 +158,24 @@ void CrossLine::addVLine_(double key)
 	}
 }
 
+void CrossLine::addVLines_(const QVector<double>& keys, const QStringList& keyTextFormats)
+{
+	if (keyTextFormats.isEmpty())
+	{
+		foreach(const double& key, keys)
+		{
+			addVLine_(key);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < keys.size(); ++i)
+		{
+			addVLine_(keys[i], keyTextFormats.value(i, DEFAULT_KEY_TEXT_FORMAT));
+		}
+	}
+}
+
 void CrossLine::clearVLines_()
 {
 	CursorHelper* helper = &mParentPlot->cursorHelper;
@@ -145,7 +195,7 @@ void CrossLine::clearVLines_()
 	mKeys.resize(0);
 }
 
-void CrossLine::addTracer_(double key)
+void CrossLine::addTracer_(double key, const QString& tracerTextFormat)
 {
 	if (mLineMode != lmTracing)
 	{
@@ -168,6 +218,7 @@ void CrossLine::addTracer_(double key)
 	text->position->setType(QCPItemPosition::ptAbsolute);
 	text->setLayer(layer);
 	mTracerTexts.append(text);
+	mTracerTextFormats.append(tracerTextFormat);
 
 	QCPItemCurve* arrow = new QCPItemCurve(mParentPlot);
 	arrow->start->setParentAnchor(text->left);
@@ -180,6 +231,16 @@ void CrossLine::addTracer_(double key)
 		                             text->top->pixelPosition().y()) * 0.85));
 	arrow->setLayer(layer);
 	mTracerArrows.append(arrow);
+}
+
+void CrossLine::addTracers_(const QVector<double>& keys, const QStringList& tracerTextFormats, const QStringList& keyTextFormats, const QStringList& valueTextFormats)
+{
+	for (int i = 0; i < keys.size(); ++i)
+	{
+		addTracer_(keys[i], tracerTextFormats.value(i, DEFAULT_TRACER_TEXT_FORMAT));
+		addVLine_(keys[i], keyTextFormats.value(i, DEFAULT_KEY_TEXT_FORMAT));
+		addHLine_(0.0, valueTextFormats.value(i, DEFAULT_VALUE_TEXT_FORMAT));
+	}
 }
 
 void CrossLine::clearTracers_()
@@ -203,7 +264,7 @@ void CrossLine::clearTracers_()
 	mTracerArrows.resize(0);
 }
 
-void CrossLine::addHLine(double value)
+void CrossLine::addHLine(double value, const QString& valueTextFormat)
 {
 	if (mLineMode != LineMode::lmFree)
 	{
@@ -211,12 +272,12 @@ void CrossLine::addHLine(double value)
 		return;
 	}
 
-	addHLine_(value);
+	addHLine_(value, valueTextFormat);
 
 	update();
 }
 
-void CrossLine::addHLines(const QVector<double>& values)
+void CrossLine::addHLines(const QVector<double>& values, const QStringList& valueTextFormats)
 {
 	if (mLineMode != LineMode::lmFree)
 	{
@@ -224,15 +285,12 @@ void CrossLine::addHLines(const QVector<double>& values)
 		return;
 	}
 
-	foreach(const double& value, values)
-	{
-		addHLine_(value);
-	}
+	addHLines_(values, valueTextFormats);
 
 	update();
 }
 
-void CrossLine::setHLines(const QVector<double>& values)
+void CrossLine::setHLines(const QVector<double>& values, const QStringList& valueTextFormats)
 {
 	if (mLineMode != LineMode::lmFree)
 	{
@@ -242,10 +300,7 @@ void CrossLine::setHLines(const QVector<double>& values)
 
 	clearHLines_();
 
-	foreach(const double& value, values)
-	{
-		addHLine_(value);
-	}
+	addHLines_(values, valueTextFormats);
 
 	update();
 }
@@ -263,7 +318,7 @@ void CrossLine::clearHLines()
 	update();
 }
 
-void CrossLine::addVLine(double key)
+void CrossLine::addVLine(double key, const QString& keyTextFormat)
 {
 	if (mLineMode != LineMode::lmFree)
 	{
@@ -271,12 +326,12 @@ void CrossLine::addVLine(double key)
 		return;
 	}
 
-	addVLine_(key);
+	addVLine_(key, keyTextFormat);
 
 	update();
 }
 
-void CrossLine::addVLines(const QVector<double>& keys)
+void CrossLine::addVLines(const QVector<double>& keys, const QStringList& keyTextFormats)
 {
 	if (mLineMode != LineMode::lmFree)
 	{
@@ -284,15 +339,12 @@ void CrossLine::addVLines(const QVector<double>& keys)
 		return;
 	}
 
-	foreach(const double& key, keys)
-	{
-		addVLine_(key);
-	}
+	addVLines_(keys, keyTextFormats);
 
 	update();
 }
 
-void CrossLine::setVLines(const QVector<double>& keys)
+void CrossLine::setVLines(const QVector<double>& keys, const QStringList& keyTextFormats)
 {
 	if (mLineMode != LineMode::lmFree)
 	{
@@ -302,10 +354,7 @@ void CrossLine::setVLines(const QVector<double>& keys)
 
 	clearVLines_();
 
-	foreach(const double& key, keys)
-	{
-		addVLine_(key);
-	}
+	addVLines_(keys, keyTextFormats);
 
 	update();
 }
@@ -323,7 +372,7 @@ void CrossLine::clearVLines()
 	update();
 }
 
-void CrossLine::addTracer(double key)
+void CrossLine::addTracer(double key, const QString& tracerTextFormat, const QString& keyTextFormat, const QString& valueTextFormat)
 {
 	if (mLineMode != lmTracing)
 	{
@@ -331,14 +380,14 @@ void CrossLine::addTracer(double key)
 		return;
 	}
 
-	addTracer_(key);
-	addVLine_(key);
-	addHLine_();
+	addTracer_(key, tracerTextFormat);
+	addVLine_(key, keyTextFormat);
+	addHLine_(0.0, valueTextFormat);
 
 	update();
 }
 
-void CrossLine::addTracers(const QVector<double>& keys)
+void CrossLine::addTracers(const QVector<double>& keys, const QStringList& tracerTextFormats, const QStringList& keyTextFormats, const QStringList& valueTextFormats)
 {
 	if (mLineMode != lmTracing)
 	{
@@ -346,17 +395,12 @@ void CrossLine::addTracers(const QVector<double>& keys)
 		return;
 	}
 
-	foreach(const double& key, keys)
-	{
-		addTracer_(key);
-		addVLine_(key);
-		addHLine_();
-	}
+	addTracers_(keys, tracerTextFormats, keyTextFormats, valueTextFormats);
 
 	update();
 }
 
-void CrossLine::setTracers(const QVector<double>& keys)
+void CrossLine::setTracers(const QVector<double>& keys, const QStringList& tracerTextFormats, const QStringList& keyTextFormats, const QStringList& valueTextFormats)
 {
 	if (mLineMode != lmTracing)
 	{
@@ -368,12 +412,7 @@ void CrossLine::setTracers(const QVector<double>& keys)
 	clearVLines_();
 	clearHLines_();
 
-	foreach(const double& key, keys)
-	{
-		addTracer_(key);
-		addVLine_(key);
-		addHLine_();
-	}
+	addTracers_(keys, tracerTextFormats, keyTextFormats, valueTextFormats);
 
 	update();
 }
@@ -724,7 +763,7 @@ void CrossLine::updateTracer()
 		}
 		mTracerTexts[i]->position->setCoords(offsetX, offsetY);
 		mTracerTexts[i]->setPositionAlignment(alignment);
-		mTracerTexts[i]->setText(QString("(%1, %2)").arg(mKeys[i], 0, 'f', 2).arg(mValues[i], 0, 'f', 2));
+		mTracerTexts[i]->setText(mTracerTextFormats[i].arg(mKeys[i], 0, 'f', 2).arg(mValues[i], 0, 'f', 2));
 	}
 }
 
@@ -739,8 +778,9 @@ void CrossLine::updateHLine()
 		const auto mHLine = mHLines[i];
 		const auto mHText = mHTexts[i];
 		double value = mValues[i];
+		const QString& valueTextFormat = mHTextFormats[i];
 
-		mHText->setText(QString::number(value, 'f', 2));
+		mHText->setText(valueTextFormat.arg(QString::number(value, 'f', 2)));
 
 		value = valueAxis->coordToPixel(value);
 
@@ -772,8 +812,9 @@ void CrossLine::updateVLine()
 		const auto mVLine = mVLines[i];
 		const auto mVText = mVTexts[i];
 		double key = mKeys[i];
+		const QString& keyTextFormat = mVTextFormats[i];
 
-		mVText->setText(QString::number(key, 'f', 2));
+		mVText->setText(keyTextFormat.arg(QString::number(key, 'f', 2)));
 
 		key = keyAxis->coordToPixel(key);
 
