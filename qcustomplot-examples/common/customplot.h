@@ -6,27 +6,27 @@
 
 class CustomPlot : public QCustomPlot
 {
-    Q_OBJECT
+	Q_OBJECT
+
 public:
-    CustomPlot(QWidget *parent = Q_NULLPTR);
-    ~CustomPlot() Q_DECL_OVERRIDE;
+	CustomPlot(QWidget* parent = Q_NULLPTR);
+	~CustomPlot() Q_DECL_OVERRIDE;
 
 Q_SIGNALS:
-    void itemMoved(QCPAbstractItem *item, QMouseEvent *event);
+	void itemMoved(QCPAbstractItem* item, QMouseEvent* event);
 
-    // QWidget interface
+	// QWidget interface
 protected:
-    void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
-    void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
-    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+	void mousePressEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+	void mouseReleaseEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+	void mouseMoveEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
 
-    // QWidget interface
+	// QWidget interface
 public:
-    QSize sizeHint() const Q_DECL_OVERRIDE;
+	QSize sizeHint() const Q_DECL_OVERRIDE;
 
 public:
-    CursorHelper cursorHelper;
-
+	CursorHelper cursorHelper;
 };
 
 #endif // CUSTOMPLOT_H
