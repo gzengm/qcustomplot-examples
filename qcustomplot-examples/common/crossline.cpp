@@ -23,7 +23,7 @@ CrossLine::~CrossLine()
 {
 }
 
-void CrossLine::addHLine_()
+void CrossLine::addHLine_(double value)
 {
     QCPItemLine *line = new QCPItemLine(mParentPlot);
     line->start->setType(QCPItemPosition::ptAbsolute);
@@ -36,7 +36,7 @@ void CrossLine::addHLine_()
     text->setLayer(layer);
     mHTexts.append(text);
 
-    mValues.append(0);
+    mValues.append(value);
 
     CursorHelper *helper = CursorHelper::instance();
     if (mTargetGraph->keyAxis()->orientation() == Qt::Horizontal) {
@@ -61,8 +61,10 @@ void CrossLine::addHLine_()
 
 void CrossLine::clearHLines_()
 {
+    CursorHelper *helper = CursorHelper::instance();
     foreach (QCPItemLine *line, mHLines)
     {
+        helper->remove(line);
         mParentPlot->removeItem(line);
     }
     mHLines.resize(0);
@@ -76,7 +78,7 @@ void CrossLine::clearHLines_()
     mValues.resize(0);
 }
 
-void CrossLine::addVLine_()
+void CrossLine::addVLine_(double key)
 {
     QCPItemLine *line = new QCPItemLine(mParentPlot);
     line->start->setType(QCPItemPosition::ptAbsolute);
@@ -89,7 +91,7 @@ void CrossLine::addVLine_()
     text->setLayer(layer);
     mVTexts.append(text);
 
-    mKeys.append(0);
+    mKeys.append(key);
 
     CursorHelper *helper = CursorHelper::instance();
     if (mTargetGraph->keyAxis()->orientation() == Qt::Horizontal) {
@@ -111,8 +113,10 @@ void CrossLine::addVLine_()
 
 void CrossLine::clearVLines_()
 {
+    CursorHelper *helper = CursorHelper::instance();
     foreach (QCPItemLine *line, mVLines)
     {
+        helper->remove(line);
         mParentPlot->removeItem(line);
     }
     mVLines.resize(0);
@@ -126,7 +130,7 @@ void CrossLine::clearVLines_()
     mKeys.resize(0);
 }
 
-void CrossLine::addTracer_()
+void CrossLine::addTracer_(double key)
 {
     if (mLineMode != lmTracing)
     {
@@ -139,7 +143,7 @@ void CrossLine::addTracer_()
     tracer->setInterpolating(true);
     tracer->setStyle(QCPItemTracer::tsCircle);
     tracer->setGraph(mTargetGraph);
-    tracer->setGraphKey(0);
+    tracer->setGraphKey(key);
     tracer->setLayer(layer);
     mTracers.append(tracer);
 
@@ -184,7 +188,7 @@ void CrossLine::clearTracers_()
     mTracerArrows.resize(0);
 }
 
-void CrossLine::addHLine()
+void CrossLine::addHLine(double value)
 {
     if (mLineMode != LineMode::lmFree)
     {
@@ -192,7 +196,41 @@ void CrossLine::addHLine()
         return;
     }
 
-    addHLine_();
+    addHLine_(value);
+
+    update();
+}
+
+void CrossLine::addHLines(const QVector<double>& values)
+{
+    if (mLineMode != LineMode::lmFree)
+    {
+        qDebug() << "CrossLine::addHLines: attempt to add HLines in non-lmFree mode";
+        return;
+    }
+
+    foreach (const double& value, values)
+    {
+        addHLine_(value);
+    }
+
+    update();
+}
+
+void CrossLine::setHLines(const QVector<double>& values)
+{
+    if (mLineMode != LineMode::lmFree)
+    {
+        qDebug() << "CrossLine::setHLines: attempt to set HLines in non-lmFree mode";
+        return;
+    }
+
+    clearHLines_();
+
+    foreach (const double& value, values)
+    {
+        addHLine_(value);
+    }
 
     update();
 }
@@ -210,7 +248,7 @@ void CrossLine::clearHLines()
     update();
 }
 
-void CrossLine::addVLine()
+void CrossLine::addVLine(double key)
 {
     if (mLineMode != LineMode::lmFree)
     {
@@ -218,7 +256,41 @@ void CrossLine::addVLine()
         return;
     }
 
-    addVLine_();
+    addVLine_(key);
+
+    update();
+}
+
+void CrossLine::addVLines(const QVector<double>& keys)
+{
+    if (mLineMode != LineMode::lmFree)
+    {
+        qDebug() << "CrossLine::addVLines: attempt to add VLines in non-lmFree mode";
+        return;
+    }
+
+    foreach (const double& key, keys)
+    {
+        addVLine_(key);
+    }
+
+    update();
+}
+
+void CrossLine::setVLines(const QVector<double>& keys)
+{
+    if (mLineMode != LineMode::lmFree)
+    {
+        qDebug() << "CrossLine::setVLines: attempt to set VLines in non-lmFree mode";
+        return;
+    }
+
+    clearVLines_();
+
+    foreach (const double& key, keys)
+    {
+        addVLine_(key);
+    }
 
     update();
 }
@@ -236,7 +308,7 @@ void CrossLine::clearVLines()
     update();
 }
 
-void CrossLine::addTracer()
+void CrossLine::addTracer(double key)
 {
     if (mLineMode != lmTracing)
     {
@@ -244,9 +316,49 @@ void CrossLine::addTracer()
         return;
     }
 
-    addTracer_();
-    addVLine_();
+    addTracer_(key);
+    addVLine_(key);
     addHLine_();
+
+    update();
+}
+
+void CrossLine::addTracers(const QVector<double>& keys)
+{
+    if (mLineMode != lmTracing)
+    {
+        qDebug() << "CrossLine::addTracers: attempt to add tracers in non-lmTracing mode";
+        return;
+    }
+
+    foreach (const double& key, keys)
+    {
+        addTracer_(key);
+        addVLine_(key);
+        addHLine_();
+    }
+
+    update();
+}
+
+void CrossLine::setTracers(const QVector<double>& keys)
+{
+    if (mLineMode != lmTracing)
+    {
+        qDebug() << "CrossLine::setTracers: attempt to set tracers in non-lmTracing mode";
+        return;
+    }
+
+    clearTracers_();
+    clearVLines_();
+    clearHLines_();
+
+    foreach (const double& key, keys)
+    {
+        addTracer_(key);
+        addVLine_(key);
+        addHLine_();
+    }
 
     update();
 }

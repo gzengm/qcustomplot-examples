@@ -31,17 +31,26 @@ MainWindow::MainWindow(QWidget *parent)
 
     QPushButton *btnAddHLine = new QPushButton("Add HLine");
     connect(btnAddHLine, &QPushButton::clicked, [crossLine](){
-        crossLine->addHLine();
+        // crossLine->addHLine();
+        // crossLine->addHLine(1.0);
+        crossLine->addHLines({1.0, 2.0, 3.0});
+        // crossLine->setHLines({1.0, 2.0, 3.0});
     });
 
     QPushButton *btnAddVLine = new QPushButton("Add VLine");
     connect(btnAddVLine, &QPushButton::clicked, [crossLine](){
-        crossLine->addVLine();
+        // crossLine->addVLine();
+        // crossLine->addVLine(1.0);
+        crossLine->addVLines({1.0, 2.0, 3.0});
+        // crossLine->setVLines({1.0, 2.0, 3.0});
     });
 
     QPushButton *btnAddTracer = new QPushButton("Add Tracer");
     connect(btnAddTracer, &QPushButton::clicked, [crossLine](){
-        crossLine->addTracer();
+        // crossLine->addTracer();
+        // crossLine->addTracer(1.0);
+        crossLine->addTracers({1.0, 2.0, 3.0});
+        // crossLine->setTracers({1.0, 2.0, 3.0});
     });
 
     QPushButton *btnClearHLines = new QPushButton("Clear HLines");

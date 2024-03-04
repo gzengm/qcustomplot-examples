@@ -28,9 +28,17 @@ public:
     explicit CrossLine(QCustomPlot *parentPlot, QCPGraph *targetGraph = Q_NULLPTR);
     ~CrossLine();
 
-    void addHLine();
-    void addVLine();
-    void addTracer();
+    void addHLine(double value = 0.0);
+    void addVLine(double key = 0.0);
+    void addTracer(double key = 0.0);
+
+    void addHLines(const QVector<double>& values);
+    void addVLines(const QVector<double>& keys);
+    void addTracers(const QVector<double>& keys);
+
+    void setHLines(const QVector<double>& values);
+    void setVLines(const QVector<double>& keys);
+    void setTracers(const QVector<double>& keys);
 
     void clearHLines();
     void clearVLines();
@@ -50,9 +58,9 @@ protected:
     void updateVLine();
 
 private:
-    void addHLine_();
-    void addVLine_();
-    void addTracer_();
+    void addHLine_(double value = 0.0);
+    void addVLine_(double key = 0.0);
+    void addTracer_(double key = 0.0);
 
     void clearHLines_();
     void clearVLines_();
