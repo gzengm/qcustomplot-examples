@@ -13,8 +13,8 @@
 object_script.*.Release
 object_script.*.Debug
 *_plugin_import.cpp
-/.qmake.cache
-/.qmake.stash
+.qmake.cache
+.qmake.stash
 *.pro.user
 *.pro.user.*
 *.qbs.user
@@ -28,6 +28,7 @@ ui_*.h
 *.jsc
 Makefile*
 *build-*
+*.qtvscr
 
 # Qt unit tests
 target_wrapper.*
@@ -44,3 +45,17 @@ CMakeLists.txt.user*
 
 # Folders
 qcustomplot-examples/bin
+
+# Visual Studio cache/options directory
+.vs/
+
+# Visual Studio Code cache/options directory
+.vscode/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+bin/
+
+# User-specific files
+*.vcxproj.user
