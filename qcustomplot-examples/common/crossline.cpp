@@ -102,15 +102,16 @@ void CrossLine::clearHLines_()
 		helper->remove(line);
 		mParentPlot->removeItem(line);
 	}
-	mHLines.resize(0);
+	mHLines.clear();
 
 	foreach(QCPItemText *text, mHTexts)
 	{
 		mParentPlot->removeItem(text);
 	}
-	mHTexts.resize(0);
+	mHTexts.clear();
+	mHTextFormats.clear();
 
-	mValues.resize(0);
+	mValues.clear();
 }
 
 void CrossLine::addVLine_(double key, const QString& keyTextFormat)
@@ -184,15 +185,16 @@ void CrossLine::clearVLines_()
 		helper->remove(line);
 		mParentPlot->removeItem(line);
 	}
-	mVLines.resize(0);
+	mVLines.clear();
 
 	foreach(QCPItemText *text, mVTexts)
 	{
 		mParentPlot->removeItem(text);
 	}
-	mVTexts.resize(0);
+	mVTexts.clear();
+	mVTextFormats.clear();
 
-	mKeys.resize(0);
+	mKeys.clear();
 }
 
 void CrossLine::addTracer_(double key, const QString& tracerTextFormat)
@@ -249,19 +251,20 @@ void CrossLine::clearTracers_()
 	{
 		mParentPlot->removeItem(tracer);
 	}
-	mTracers.resize(0);
+	mTracers.clear();
 
 	foreach(QCPItemText *text, mTracerTexts)
 	{
 		mParentPlot->removeItem(text);
 	}
-	mTracerTexts.resize(0);
+	mTracerTexts.clear();
+	mTracerTextFormats.clear();
 
 	foreach(QCPItemCurve *arrow, mTracerArrows)
 	{
 		mParentPlot->removeItem(arrow);
 	}
-	mTracerArrows.resize(0);
+	mTracerArrows.clear();
 }
 
 void CrossLine::addHLine(double value, const QString& valueTextFormat)
